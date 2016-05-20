@@ -1,0 +1,31 @@
+import requests
+from bs4 import BeautifulSoup as bs
+import urllib2
+import re
+
+_URL = 'http://www.justice.gov/criminal-fraud/case/united-states-v-alstom-sa-et-al-court-docket-number-314-cr-00245-jba-314-cr'
+
+r = requests.get(_URL)
+soup = bs(r.text)
+urls = []
+names = []
+url='http://www.justice.gov'
+for i, link in enumerate(soup.findAll('a')):
+    _FULLURL = url + "%s" %(link.get("href"))
+    if _FULLURL.endswith('.pdf'):
+        urls.append(_FULLURL)
+        names.append(soup.select('a')[i].attrs['href'])
+
+names_urls = zip(names, urls)
+#print names_urls
+for name, url in names_urls:
+    print name
+    a=re.split('/',name)
+    print a[6]
+    res = requests.get(url)
+    #res.raise_for_status()
+    playFile = open("C:/Users/thiruvengadam/Desktop/python files/" + a[6]  , "wb")
+    for chunk in res.iter_content(100000):
+        playFile.write(chunk)
+    
+    playFile.close()
